@@ -8,7 +8,7 @@ const noticeSchema = new mongoose.Schema(
       trim: true,
     },
 
-    desc: {
+    description: {
       type: String,
       required: true,
       trim: true,

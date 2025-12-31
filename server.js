@@ -19,27 +19,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-// ================= NOTICE SCHEMA & MODEL =================
-const noticeSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-  },
-  { timestamps: true }
-);
-
-const Notice = mongoose.model("Notice", noticeSchema);
-
-// ================= ROUTES =================
-
+/
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
