@@ -19,7 +19,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-/
+
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
