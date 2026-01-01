@@ -12,12 +12,25 @@ const app = express();
 // ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
+app.use("/api/notices", require("./routes/noticeRoutes"));
 
 // ================= MONGODB CONNECTION =================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
+  const mongoose = require("mongoose");
+
+app.get("/__proof", async (req, res) => {
+  try {
+    res.json({
+      connected: mongoose.connection.readyState,
+      db: mongoose.connection.name,
+    });
+  } catch (e) {
+    res.json({ error: e.message });
+  }
+});
 
 
 // Test route
