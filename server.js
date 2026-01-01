@@ -19,7 +19,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
-  const mongoose = require("mongoose");
+  
+  
 
 app.get("/__proof", async (req, res) => {
   try {
