@@ -20,7 +20,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
   
-  
+
 
 app.get("/__proof", async (req, res) => {
   try {
@@ -69,7 +69,14 @@ app.post("/api/notices", async (req, res) => {
     res.status(500).json({ message: "Failed to create notice" });
   }
 });
-
+app.get("/api/debug/db", (req, res) => {
+  res.json({
+    dbName: mongoose.connection.name,
+    host: mongoose.connection.host,
+    readyState: mongoose.connection.readyState,
+    collections: Object.keys(mongoose.connection.collections),
+  });
+});
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5000;
 
