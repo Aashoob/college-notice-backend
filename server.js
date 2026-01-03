@@ -12,7 +12,7 @@ const PushToken = require("./models/PushToken");
 
 // FCM Push Service
 const PushService = require("./services/pushService");
-
+const noticeRoutes = require("./routes/noticeRoutes");
 // ========== APP INIT ==========
 const app = express();
 
@@ -26,6 +26,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("🎓 GDC Sumbal Notices API 🚀");
 });
+// Notice routes
+app.use("/api/notices", noticeRoutes);
 
 // Save FCM token from app
 app.post("/api/save-token", async (req, res) => {
