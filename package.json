@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -13,8 +13,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "expo-server-sdk": "^4.0.0",
     "express": "^5.2.1",
+    "firebase-admin": "^13.6.0",
     "mongoose": "^9.1.1"
   }
 }
