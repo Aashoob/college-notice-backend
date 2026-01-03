@@ -1,13 +1,14 @@
 const admin = require("firebase-admin");
 const PushToken = require("../models/PushToken");
-const path = require("path");
 
 // Initialize Firebase Admin (only once)
 if (!admin.apps.length) {
+  const serviceAccount = JSON.parse(
+    process.env.FIREBASE_SERVICE_ACCOUNT
+  );
+
   admin.initializeApp({
-    credential: admin.credential.cert(
-      require(path.join(__dirname, "../serviceAccountKey.json"))
-    ),
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
