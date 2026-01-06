@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 const PushToken = require("../models/PushToken");
 
-// Initialize Firebase Admin (only once)
+// 🔥 Firebase Admin init (keep yours – it is OK)
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(
     process.env.FIREBASE_SERVICE_ACCOUNT
@@ -15,39 +15,57 @@ if (!admin.apps.length) {
 class PushService {
   static async sendPushNotification(title, body, data = {}) {
     try {
-      // Get all saved FCM tokens
-      const tokens = await PushToken.find({});
-      const fcmTokens = tokens.map(t => t.token).filter(Boolean);
+      // ✅ Get ONLY FCM tokens
+      const tokens = await PushToken.find({ type: "fcm" }).lean();
 
-      if (fcmTokens.length === 0) {
+      if (!tokens.length) {
         console.log("⚠️ No FCM tokens found");
         return { success: false, message: "No devices registered" };
       }
 
-      console.log(`📨 Sending FCM push to ${fcmTokens.length} devices`);
+      console.log(`📤 Sending push to ${tokens.length} devices`);
 
-      const message = {
-        notification: {
-          title,
-          body,
-        },
-        data: {
-          ...data,
-          type: "new_notice",
-        },
-        tokens: fcmTokens,
-      };
+      const results = [];
 
-      const response = await admin.messaging().sendEachForMulticast(message);
+      for (const t of tokens) {
+        try {
+          const response = await admin.messaging().send({
+            token: t.token,
+            notification: {
+              title,
+              body,
+            },
+            data: {
+              ...data,
+              type: "new_notice",
+            },
+            android: {
+              priority: "high",
+            },
+          });
 
-      console.log(
-        `✅ Push sent: ${response.successCount} success, ${response.failureCount} failed`
-      );
+          results.push({ token: t.token, success: true, response });
+        } catch (err) {
+          console.error("❌ Push failed for token:", t.token);
+          console.error(err.message);
 
-      return { success: true, response };
+          // 🗑️ Auto-delete invalid tokens
+          if (
+            err.code === "messaging/registration-token-not-registered" ||
+            err.code === "messaging/invalid-registration-token"
+          ) {
+            await PushToken.deleteOne({ token: t.token });
+            console.log("🗑️ Removed invalid FCM token");
+          }
+
+          results.push({ token: t.token, success: false, error: err.message });
+        }
+      }
+
+      return { success: true, results };
     } catch (error) {
-      console.error("❌ FCM push error:", error);
-      return { success: false, error: error.message };
+      console.error("❌ PushService error:", error);
+      throw error;
     }
   }
 }

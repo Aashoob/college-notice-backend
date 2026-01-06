@@ -1,39 +1,27 @@
-const express = require("express");
-const router = express.Router();
-
-const {
-  getNotices,
-  createNotice,
-} = require("../controllers/noticeController");
-
+const Notice = require("../models/Notice");
 const PushService = require("../services/pushService");
 
-// GET /api/notices
-router.get("/", getNotices);
-
-// POST /api/notices
-router.post("/", createNotice);
-
-// POST /api/notices/test-push
-router.post("/test-push", async (req, res) => {
+exports.createNotice = async (req, res, skipResponse = false) => {
   try {
-    const result = await PushService.sendPushNotification(
-      "Test Notification",
-      "FCM is working 🎉",
-      { source: "test-route" }
+    const notice = await Notice.create(req.body);
+
+    // 🔥 SEND FCM PUSH HERE
+    await PushService.sendPushNotification(
+      notice.title,
+      notice.description,
+      { noticeId: notice._id }
     );
 
-    return res.status(200).json({
-      success: true,
-      result,
-    });
-  } catch (error) {
-    console.error("❌ Test push error:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
+    if (!skipResponse) {
+      return res.status(201).json(notice);
+    }
 
-module.exports = router;
+    return res.status(201).json(notice);
+  } catch (error) {
+    console.error("❌ Create notice error:", error);
+    if (!skipResponse) {
+      return res.status(500).json({ error: "Failed to create notice" });
+    }
+    throw error;
+  }
+};
